@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Star, MessageSquareCode, Sparkles, Send, CheckCircle2 } from "lucide-react";
 import PageHero from "./PageHero.tsx";
+import { getApiUrl } from "../utils/api.ts";
 
 interface FeedbackProps {
   onNavigate?: (sectionId: string) => void;
@@ -54,7 +55,7 @@ export default function Feedback({ onNavigate }: FeedbackProps) {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/feedbacks.php", {
+      const res = await fetch(getApiUrl("/api/feedbacks.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

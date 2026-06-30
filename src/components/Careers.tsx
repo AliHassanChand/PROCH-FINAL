@@ -18,6 +18,7 @@ import {
   HeartHandshake
 } from "lucide-react";
 import PageHero from "./PageHero.tsx";
+import { getApiUrl } from "../utils/api.ts";
 
 interface CareersProps {
   onNavigate?: (sectionId: string) => void;
@@ -275,7 +276,7 @@ export default function Careers({ onNavigate }: CareersProps) {
         statement: formData.statement
       };
 
-      const res = await fetch("/api/applications.php", {
+      const res = await fetch(getApiUrl("/api/applications.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

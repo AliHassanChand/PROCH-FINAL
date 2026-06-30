@@ -110,7 +110,7 @@ app.post("/api/assistant", async (req, res) => {
 // ==========================================
 
 // Create a new general family inquiry (general_family_inquiries.php)
-app.post("/api/general_family_inquiries.php", async (req, res) => {
+app.post(["/api/general_family_inquiries", "/api/general_family_inquiries.php"], async (req, res) => {
   try {
     const { name, email, phone, relation, message, status } = req.body;
     if (!name || !email || !message) {
@@ -146,7 +146,7 @@ app.post("/api/general_family_inquiries.php", async (req, res) => {
 });
 
 // Submit a new local authority referral (local_authority_referrals.php)
-app.post("/api/local_authority_referrals.php", async (req, res) => {
+app.post(["/api/local_authority_referrals", "/api/local_authority_referrals.php"], async (req, res) => {
   try {
     const {
       commissionerName,
@@ -202,7 +202,7 @@ app.post("/api/local_authority_referrals.php", async (req, res) => {
 });
 
 // Submit career application (applications.php)
-app.post("/api/applications.php", async (req, res) => {
+app.post(["/api/applications", "/api/applications.php"], async (req, res) => {
   try {
     const { name, email, phone, role, experience, statement } = req.body;
     if (!name || !email || !statement || !role) {
@@ -226,7 +226,7 @@ app.post("/api/applications.php", async (req, res) => {
 });
 
 // Submit continuous feedback (feedbacks.php)
-app.post("/api/feedbacks.php", async (req, res) => {
+app.post(["/api/feedbacks", "/api/feedbacks.php"], async (req, res) => {
   try {
     const { name, relationship, rating, message } = req.body;
     if (!name || !message) {

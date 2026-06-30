@@ -15,6 +15,7 @@ import {
   Building 
 } from "lucide-react";
 import PageHero from "./PageHero.tsx";
+import { getApiUrl } from "../utils/api.ts";
 
 interface ReferralsProps {
   onNavigate?: (sectionId: string) => void;
@@ -48,7 +49,7 @@ export default function Referrals({ onNavigate }: ReferralsProps) {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/local_authority_referrals.php", {
+      const res = await fetch(getApiUrl("/api/local_authority_referrals.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(referralForm)

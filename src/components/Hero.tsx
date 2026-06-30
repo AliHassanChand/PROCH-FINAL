@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
+import { getApiUrl } from "../utils/api.ts";
 import { 
   ShieldCheck, 
   HeartHandshake, 
@@ -55,7 +56,7 @@ export default function Hero({ onNavigate }: HeroProps) {
     setHomepageIsSubmitting(true);
     
     try {
-      const res = await fetch("/api/local_authority_referrals.php", {
+      const res = await fetch(getApiUrl("/api/local_authority_referrals.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(homepageReferralForm)
@@ -99,7 +100,7 @@ export default function Hero({ onNavigate }: HeroProps) {
     setHomepageIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/general_family_inquiries.php", {
+      const res = await fetch(getApiUrl("/api/general_family_inquiries.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(homepageGeneralForm)
