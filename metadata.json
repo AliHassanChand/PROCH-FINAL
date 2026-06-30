@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: Remix: Remix: PRO Care Homes",
+  "description": "Premium Specialist Residential Care and Support in the UK, specializing in Learning Disabilities, Autism, and complex Mental Health needs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

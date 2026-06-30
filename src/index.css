@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-gov-blue: #132B50;
+  --color-calm-blue: #1D3E6C;
+  --color-care-green: #06AFBB;
+  --color-care-purple: #7D3196;
+  --color-warm-bg: #F8FAFC;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-premium-gold: #C6A87D;
+  
+  --color-brand-success: #10B981;
+  --color-brand-error: #EF4444;
+  --color-brand-warning: #F59E0B;
+}
+
+/* Custom Scrollbar for modern premium feel with brand teal and navy */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #06AFBB35;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #132B5050;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+section {
+  scroll-margin-top: 140px; /* Account for the executive navbar + sub-nav */
+}
+
+body {
+  background-color: #F7F8FA;
+  color: #1B1F24;
+}
