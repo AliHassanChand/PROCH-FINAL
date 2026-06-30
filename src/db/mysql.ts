@@ -366,17 +366,33 @@ export async function executeQuery<T>(sql: string, params: any[] = []): Promise<
 /**
  * Health Check function to verify connection status.
  */
-export async function testConnection(): Promise<{ status: "connected" | "disconnected" | "unconfigured"; error?: string }> {
+export async function testConnection(): Promise<{
+  status: "connected" | "disconnected" | "unconfigured";
+  error?: string;
+  details?: {
+    host: string;
+    port: number;
+    database: string;
+    user: string;
+  };
+}> {
+  const details = {
+    host: process.env.DB_HOST || "",
+    port: parseInt(process.env.DB_PORT || "3306"),
+    database: process.env.DB_NAME || "",
+    user: process.env.DB_USER || "",
+  };
+
   if (!isConfigured()) {
-    return { status: "unconfigured", error: "Database environment variables are not set." };
+    return { status: "unconfigured", error: "Database environment variables are not set.", details };
   }
   try {
     const db = await getMySQLPool();
     const connection = await db.getConnection();
     await connection.ping();
     connection.release();
-    return { status: "connected" };
+    return { status: "connected", details };
   } catch (err: any) {
-    return { status: "disconnected", error: err.message };
+    return { status: "disconnected", error: err.message, details };
   }
 }

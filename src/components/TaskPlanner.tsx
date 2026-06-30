@@ -26,6 +26,12 @@ interface DBStatus {
   configured: boolean;
   status: "connected" | "disconnected" | "unconfigured";
   error?: string;
+  details?: {
+    host: string;
+    port: number;
+    database: string;
+    user: string;
+  };
 }
 
 export default function TaskPlanner() {
@@ -244,14 +250,31 @@ export default function TaskPlanner() {
 
       {/* Database Warning Block if disconnected */}
       {dbStatus.status !== "connected" && (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5 flex gap-3 text-amber-900 text-xs leading-relaxed animate-fadeIn">
-          <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-extrabold text-amber-950">MySQL Credentials Required</p>
-            <p className="text-[11px] text-amber-900/95">
-              The application requires a valid Hostinger MySQL database. Please set up your credential variables (<code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_HOST</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_NAME</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_USER</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_PASSWORD</code>) inside the Secrets manager to query the database.
-            </p>
+        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5 space-y-3 text-amber-900 text-xs leading-relaxed animate-fadeIn">
+          <div className="flex gap-3">
+            <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-extrabold text-amber-950">MySQL Credentials Required</p>
+              <p className="text-[11px] text-amber-900/95">
+                The application requires a valid Hostinger MySQL database. Please set up your credential variables (<code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_HOST</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_NAME</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_USER</code>, <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded">DB_PASSWORD</code>) inside the Secrets manager to query the database.
+              </p>
+            </div>
           </div>
+          
+          {dbStatus.details && (
+            <div className="bg-amber-100/30 rounded-xl p-3 border border-amber-200/50 font-mono text-[11px] space-y-1 text-amber-950">
+              <p className="font-bold border-b border-amber-200/40 pb-1 mb-1 text-amber-900 text-xs">Loaded Environment Variables / Diagnostic Details:</p>
+              <div><span className="text-amber-800 font-semibold">DB_HOST:</span> <span className="underline decoration-dotted">{dbStatus.details.host || "(Empty)"}</span></div>
+              <div><span className="text-amber-800 font-semibold">DB_PORT:</span> <span className="underline decoration-dotted">{dbStatus.details.port || "3306"}</span></div>
+              <div><span className="text-amber-800 font-semibold">DB_NAME:</span> <span className="underline decoration-dotted">{dbStatus.details.database || "(Empty)"}</span></div>
+              <div><span className="text-amber-800 font-semibold">DB_USER:</span> <span className="underline decoration-dotted">{dbStatus.details.user || "(Empty)"}</span></div>
+              {dbStatus.error && (
+                <div className="mt-2 text-rose-800 border-t border-amber-200/40 pt-1.5 font-sans leading-normal">
+                  <span className="font-bold">Last Connection Error:</span> {dbStatus.error}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
