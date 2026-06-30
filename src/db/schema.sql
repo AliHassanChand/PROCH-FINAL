@@ -5,13 +5,40 @@
 -- CREATE DATABASE IF NOT EXISTS pro_care_homes CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- USE pro_care_homes;
 
--- 1. Client Daily Living Schedules (Todos)
-CREATE TABLE IF NOT EXISTS todos (
+-- 1. Local Authority Referrals (Secure Referrals Portal)
+CREATE TABLE IF NOT EXISTS local_authority_referrals (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  commissioner_name VARCHAR(255) NOT NULL,
+  authority VARCHAR(255) DEFAULT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) DEFAULT NULL,
+  service_user_name VARCHAR(255) NOT NULL,
+  dob VARCHAR(50) DEFAULT NULL,
+  diagnosis VARCHAR(255) DEFAULT 'Learning Disabilities & Autism Mix',
+  required_ratios VARCHAR(255) DEFAULT '1:1 Support Day & night',
+  funding_status VARCHAR(100) DEFAULT 'Secured',
+  authority_type VARCHAR(255) DEFAULT 'CCG (NHS Commissioning)',
+  risk_details TEXT DEFAULT NULL,
+  status VARCHAR(50) DEFAULT 'Pending',
+  ip_address VARCHAR(100) DEFAULT NULL,
+  user_agent VARCHAR(500) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. General Family Inquiries (Contact/Inquiries)
+CREATE TABLE IF NOT EXISTS general_family_inquiries (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  is_complete TINYINT(1) NOT NULL DEFAULT 0,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) DEFAULT NULL,
+  relation VARCHAR(255) DEFAULT 'Family Member / Guardian',
+  message TEXT NOT NULL,
+  status VARCHAR(50) DEFAULT 'Pending',
+  ip_address VARCHAR(100) DEFAULT NULL,
+  user_agent VARCHAR(500) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_todos_complete (is_complete)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. Family Messages (Contact Form Submissions)

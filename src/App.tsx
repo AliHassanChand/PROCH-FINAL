@@ -21,7 +21,6 @@ import Policies from "./components/Policies.tsx";
 import warmCareInteraction from "./assets/images/warm_care_interaction_new_1782404279000.jpg";
 import HumanCare from "./components/HumanCare.tsx";
 import ScrollReveal, { StaggerItem } from "./components/ScrollReveal.tsx";
-import TaskPlanner from "./components/TaskPlanner.tsx";
 
 import { 
   ShieldCheck, 
@@ -183,8 +182,6 @@ export default function App() {
         return <GovernancePages activePageId="responsive" onNavigate={handleNavigate} />;
       case "community":
         return <Community onNavigate={handleNavigate} />;
-      case "daily-planner":
-        return <TaskPlanner />;
       case "hero":
       case "home":
       default:
@@ -258,14 +255,6 @@ export default function App() {
         icon: GraduationCap,
         badge: "Work Here",
         accent: "border-care-purple/20 bg-care-purple/5 text-care-purple"
-      },
-      {
-        id: "daily-planner",
-        title: "Daily Living Planner",
-        desc: "Interactive client daily living routines and active support plans, powered by Hostinger MySQL database.",
-        icon: ClipboardCheck,
-        badge: "MySQL Pool",
-        accent: "border-emerald-100 bg-emerald-50/30 text-emerald-700"
       }
     ];
 

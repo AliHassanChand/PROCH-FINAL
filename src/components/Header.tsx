@@ -242,7 +242,6 @@ export default function Header({ onNavigate, activeSection }: HeaderProps) {
     { label: "Executive Leadership", id: "leadership" },
     { label: "Governance & Standards", id: "governance-safe" },
     { label: "Secure Referrals Portal", id: "referrals" },
-    { label: "Daily Living Planner", id: "daily-planner" },
     { label: "Policies & Standards", id: "policies" },
     { label: "Careers Portal", id: "careers" }
   ];

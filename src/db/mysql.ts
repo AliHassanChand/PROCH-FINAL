@@ -66,13 +66,41 @@ export async function getMySQLPool(): Promise<mysql.Pool> {
 async function initializeTables(db: mysql.Pool) {
   console.log("Initializing Hostinger MySQL tables...");
 
-  const createTodosTable = `
-    CREATE TABLE IF NOT EXISTS todos (
+  const createLocalAuthorityReferralsTable = `
+    CREATE TABLE IF NOT EXISTS local_authority_referrals (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      commissioner_name VARCHAR(255) NOT NULL,
+      authority VARCHAR(255) DEFAULT NULL,
+      email VARCHAR(255) NOT NULL,
+      phone VARCHAR(50) DEFAULT NULL,
+      service_user_name VARCHAR(255) NOT NULL,
+      dob VARCHAR(50) DEFAULT NULL,
+      diagnosis VARCHAR(255) DEFAULT 'Learning Disabilities & Autism Mix',
+      required_ratios VARCHAR(255) DEFAULT '1:1 Support Day & night',
+      funding_status VARCHAR(100) DEFAULT 'Secured',
+      authority_type VARCHAR(255) DEFAULT 'CCG (NHS Commissioning)',
+      risk_details TEXT DEFAULT NULL,
+      status VARCHAR(50) DEFAULT 'Pending',
+      ip_address VARCHAR(100) DEFAULT NULL,
+      user_agent VARCHAR(500) DEFAULT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
+
+  const createGeneralFamilyInquiriesTable = `
+    CREATE TABLE IF NOT EXISTS general_family_inquiries (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      is_complete TINYINT(1) NOT NULL DEFAULT 0,
+      email VARCHAR(255) NOT NULL,
+      phone VARCHAR(50) DEFAULT NULL,
+      relation VARCHAR(255) DEFAULT 'Family Member / Guardian',
+      message TEXT NOT NULL,
+      status VARCHAR(50) DEFAULT 'Pending',
+      ip_address VARCHAR(100) DEFAULT NULL,
+      user_agent VARCHAR(500) DEFAULT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      INDEX idx_todos_complete (is_complete)
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `;
 
@@ -131,7 +159,8 @@ async function initializeTables(db: mysql.Pool) {
   `;
 
   // Run initializations inside transactions or sequence to ensure correctness
-  await db.query(createTodosTable);
+  await db.query(createLocalAuthorityReferralsTable);
+  await db.query(createGeneralFamilyInquiriesTable);
   await db.query(createFamilyMessagesTable);
   await db.query(createReferralsTable);
   await db.query(createFeedbacksTable);
@@ -142,13 +171,6 @@ async function initializeTables(db: mysql.Pool) {
 // ==========================================
 // IN-MEMORY COMPATIBILITY DATABASE ENGINE
 // ==========================================
-interface MemoryTodo {
-  id: number;
-  name: string;
-  is_complete: number;
-  created_at: string;
-}
-
 interface MemoryFamilyMessage {
   id: number;
   name: string;
@@ -196,11 +218,8 @@ interface MemoryApplication {
 }
 
 const memoryDb = {
-  todos: [
-    { id: 1, name: "Establish safe medication log checking", is_complete: 0, created_at: new Date().toISOString() },
-    { id: 2, name: "Coordinate speech therapy compatibility review", is_complete: 1, created_at: new Date().toISOString() },
-    { id: 3, name: "PBS plan dynamic triggers audit with Boston Murray", is_complete: 0, created_at: new Date().toISOString() }
-  ] as MemoryTodo[],
+  local_authority_referrals: [] as any[],
+  general_family_inquiries: [] as any[],
   family_messages: [] as MemoryFamilyMessage[],
   referrals: [] as MemoryReferral[],
   feedbacks: [] as MemoryFeedback[],
@@ -209,44 +228,33 @@ const memoryDb = {
 
 function executeMemoryQuery(sql: string, params: any[]): any {
   const cleanSql = sql.trim().replace(/\s+/g, " ");
-  
-  // 1. SELECT * FROM todos
-  if (/^SELECT \* FROM todos/i.test(cleanSql)) {
-    return [...memoryDb.todos].sort((a, b) => b.id - a.id);
-  }
-  
-  // 2. INSERT INTO todos
-  if (/^INSERT INTO todos/i.test(cleanSql)) {
-    const name = params[0];
-    const isComplete = params[1] !== undefined ? (params[1] ? 1 : 0) : 0;
-    const newId = memoryDb.todos.length > 0 ? Math.max(...memoryDb.todos.map(t => t.id)) + 1 : 1;
-    const item: MemoryTodo = {
-      id: newId,
-      name,
-      is_complete: isComplete,
+
+  // 9. INSERT INTO local_authority_referrals
+  if (/^INSERT INTO local_authority_referrals/i.test(cleanSql)) {
+    const [
+      commissioner_name, authority, email, phone, service_user_name,
+      dob, diagnosis, required_ratios, funding_status,
+      authority_type, risk_details, status, ip_address, user_agent
+    ] = params;
+    const newId = memoryDb.local_authority_referrals.length + 1;
+    memoryDb.local_authority_referrals.push({
+      id: newId, commissioner_name, authority, email, phone, service_user_name,
+      dob, diagnosis, required_ratios, funding_status,
+      authority_type, risk_details, status, ip_address, user_agent,
       created_at: new Date().toISOString()
-    };
-    memoryDb.todos.push(item);
+    });
     return { insertId: newId };
   }
-  
-  // 3. UPDATE todos SET is_complete
-  if (/^UPDATE todos SET is_complete/i.test(cleanSql)) {
-    const isComplete = params[0] ? 1 : 0;
-    const id = parseInt(params[1]);
-    const todo = memoryDb.todos.find(t => t.id === id);
-    if (todo) {
-      todo.is_complete = isComplete;
-    }
-    return { affectedRows: todo ? 1 : 0 };
-  }
-  
-  // 4. DELETE FROM todos
-  if (/^DELETE FROM todos/i.test(cleanSql)) {
-    const id = parseInt(params[0]);
-    const initialLen = memoryDb.todos.length;
-    memoryDb.todos = memoryDb.todos.filter(t => t.id !== id);
-    return { affectedRows: initialLen - memoryDb.todos.length };
+
+  // 10. INSERT INTO general_family_inquiries
+  if (/^INSERT INTO general_family_inquiries/i.test(cleanSql)) {
+    const [name, email, phone, relation, message, status, ip_address, user_agent] = params;
+    const newId = memoryDb.general_family_inquiries.length + 1;
+    memoryDb.general_family_inquiries.push({
+      id: newId, name, email, phone, relation, message, status, ip_address, user_agent,
+      created_at: new Date().toISOString()
+    });
+    return { insertId: newId };
   }
   
   // 5. INSERT INTO family_messages

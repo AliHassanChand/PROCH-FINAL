@@ -48,7 +48,7 @@ export default function Referrals({ onNavigate }: ReferralsProps) {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/referrals", {
+      const res = await fetch("/api/local_authority_referrals.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(referralForm)
@@ -61,6 +61,20 @@ export default function Referrals({ onNavigate }: ReferralsProps) {
 
       setIsSubmitting(false);
       setReferralFeedback(true);
+      // Reset form on success
+      setReferralForm({
+        commissionerName: "",
+        authority: "",
+        email: "",
+        phone: "",
+        serviceUserName: "",
+        dob: "",
+        diagnosis: "Learning Disabilities & Autism Mix",
+        fundingStatus: "Secured",
+        riskDetails: "",
+        requiredRatios: "1:1 Support Day & night",
+        authorityType: "CCG (NHS Commissioning)"
+      });
     } catch (err: any) {
       console.error("Referrals submission failed:", err);
       setIsSubmitting(false);

@@ -275,7 +275,7 @@ export default function Careers({ onNavigate }: CareersProps) {
         statement: formData.statement
       };
 
-      const res = await fetch("/api/applications", {
+      const res = await fetch("/api/applications.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -288,6 +288,16 @@ export default function Careers({ onNavigate }: CareersProps) {
 
       setIsSubmitting(false);
       setSubmitted(true);
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        position: "Apply to Become an Adult Support Worker",
+        hasDBS: "yes",
+        experience: "",
+        statement: ""
+      });
     } catch (err: any) {
       console.error("Careers application submission failed:", err);
       setIsSubmitting(false);

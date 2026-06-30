@@ -54,7 +54,7 @@ export default function Feedback({ onNavigate }: FeedbackProps) {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/feedbacks", {
+      const res = await fetch("/api/feedbacks.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -67,6 +67,13 @@ export default function Feedback({ onNavigate }: FeedbackProps) {
 
       setIsSubmitting(false);
       setSubmitted(true);
+      // Reset form on success
+      setFormData({
+        name: "",
+        relationship: "Family Member / Circle of Care",
+        rating: 5,
+        message: ""
+      });
     } catch (err: any) {
       console.error("Feedback submission failed:", err);
       setIsSubmitting(false);

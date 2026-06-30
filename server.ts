@@ -109,102 +109,44 @@ app.post("/api/assistant", async (req, res) => {
 // Hostinger MySQL REST API Endpoints
 // ==========================================
 
-// Get all todos (Client daily schedules)
-app.get("/api/todos", async (req, res) => {
+// Create a new general family inquiry (general_family_inquiries.php)
+app.post("/api/general_family_inquiries.php", async (req, res) => {
   try {
-    const todos = await executeQuery<any[]>("SELECT * FROM todos ORDER BY id DESC");
-    const formattedTodos = todos.map(todo => ({
-      ...todo,
-      is_complete: !!todo.is_complete,
-      completed: !!todo.is_complete // provide both fields for double safety
-    }));
-    res.json(formattedTodos);
-  } catch (err: any) {
-    console.error("GET /api/todos error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Could not retrieve planner tasks. " + err.message });
-  }
-});
-
-// Create a new todo
-app.post("/api/todos", async (req, res) => {
-  try {
-    const { name } = req.body;
-    if (!name || !name.trim()) {
-      return res.status(400).json({ error: "Task name is required." });
-    }
-    const result = await executeQuery<any>(
-      "INSERT INTO todos (name, is_complete) VALUES (?, 0)",
-      [name.trim()]
-    );
-    res.status(201).json({
-      id: result.insertId,
-      name: name.trim(),
-      is_complete: false,
-      completed: false,
-      created_at: new Date().toISOString()
-    });
-  } catch (err: any) {
-    console.error("POST /api/todos error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Could not create planner task. " + err.message });
-  }
-});
-
-// Toggle todo completeness status
-app.put("/api/todos/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { is_complete, completed } = req.body;
-    const statusVal = (is_complete !== undefined ? is_complete : completed) ? 1 : 0;
-    
-    await executeQuery(
-      "UPDATE todos SET is_complete = ? WHERE id = ?",
-      [statusVal, id]
-    );
-    res.json({ success: true, id: parseInt(id), is_complete: !!statusVal, completed: !!statusVal });
-  } catch (err: any) {
-    console.error("PUT /api/todos error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Could not update planner task. " + err.message });
-  }
-});
-
-// Delete a todo task
-app.delete("/api/todos/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    await executeQuery("DELETE FROM todos WHERE id = ?", [id]);
-    res.json({ success: true, id: parseInt(id) });
-  } catch (err: any) {
-    console.error("DELETE /api/todos error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Could not delete planner task. " + err.message });
-  }
-});
-
-// Create a new family message (Contact Us Form)
-app.post("/api/family_messages", async (req, res) => {
-  try {
-    const { name, email, phone, relation, message } = req.body;
+    const { name, email, phone, relation, message, status } = req.body;
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "Name, email, and message are required fields." });
+      return res.status(400).json({ error: "Validation Error: Your Name, Email, and Consultation Message are required fields." });
     }
 
+    const ipAddress = req.ip || req.headers["x-forwarded-for"] || "127.0.0.1";
+    const userAgent = req.headers["user-agent"] || "Node Express Browser";
+
     const result = await executeQuery<any>(
-      "INSERT INTO family_messages (name, email, phone, relation, message) VALUES (?, ?, ?, ?, ?)",
-      [name, email, phone || null, relation || "Family Member / Guardian", message]
+      "INSERT INTO general_family_inquiries (name, email, phone, relation, message, status, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        name,
+        email,
+        phone || null,
+        relation || "Family Member / Guardian",
+        message,
+        status || "Pending",
+        ipAddress,
+        userAgent
+      ]
     );
 
     res.status(201).json({
       success: true,
       id: result.insertId,
-      message: "Family Message Received"
+      message: "General family inquiry submitted and stored successfully into Hostinger MySQL database."
     });
   } catch (err: any) {
-    console.error("POST /api/family_messages error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Family Message Can't Received. " + err.message });
+    console.error("POST /api/general_family_inquiries.php error:", err);
+    res.status(500).json({ error: "Hostinger MySQL Database Error: Failed to record general family inquiry. " + err.message });
   }
 });
 
-// Submit a new formal care referral
-app.post("/api/referrals", async (req, res) => {
+// Submit a new local authority referral (local_authority_referrals.php)
+app.post("/api/local_authority_referrals.php", async (req, res) => {
   try {
     const {
       commissionerName,
@@ -217,15 +159,19 @@ app.post("/api/referrals", async (req, res) => {
       fundingStatus,
       riskDetails,
       requiredRatios,
-      authorityType
+      authorityType,
+      status
     } = req.body;
 
     if (!commissionerName || !email || !serviceUserName) {
-      return res.status(400).json({ error: "Your Name, Email, and Resident Name are required high-priority fields." });
+      return res.status(400).json({ error: "Validation Error: Your Name, Email, and Resident Name are required fields." });
     }
 
+    const ipAddress = req.ip || req.headers["x-forwarded-for"] || "127.0.0.1";
+    const userAgent = req.headers["user-agent"] || "Node Express Browser";
+
     const result = await executeQuery<any>(
-      "INSERT INTO referrals (commissioner_name, authority, email, phone, service_user_name, dob, diagnosis, funding_status, risk_details, required_ratios, authority_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO local_authority_referrals (commissioner_name, authority, email, phone, service_user_name, dob, diagnosis, required_ratios, funding_status, authority_type, risk_details, status, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         commissionerName,
         authority || null,
@@ -234,37 +180,57 @@ app.post("/api/referrals", async (req, res) => {
         serviceUserName,
         dob || null,
         diagnosis || "Learning Disabilities & Autism Mix",
-        fundingStatus || "Secured",
-        riskDetails || null,
         requiredRatios || "1:1 Support Day & night",
-        authorityType || "CCG (NHS Commissioning)"
+        fundingStatus || "Secured",
+        authorityType || "CCG (NHS Commissioning)",
+        riskDetails || null,
+        status || "Pending",
+        ipAddress,
+        userAgent
       ]
-    );
-
-    // Also auto-inject an audit task logging this referral in the Daily Living Planner
-    const referralTodoText = `New Referral: ${serviceUserName} by Commissioner ${commissionerName} (${authority || "Local Authority"})`;
-    await executeQuery(
-      "INSERT INTO todos (name, is_complete) VALUES (?, 0)",
-      [referralTodoText.substring(0, 255)]
     );
 
     res.status(201).json({
       success: true,
       id: result.insertId,
-      message: "Referral Received"
+      message: "Referral submitted and stored successfully into Hostinger MySQL database."
     });
   } catch (err: any) {
-    console.error("POST /api/referrals error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Referral Can't Received. " + err.message });
+    console.error("POST /api/local_authority_referrals.php error:", err);
+    res.status(500).json({ error: "Hostinger MySQL Database Error: Failed to record local authority referral. " + err.message });
   }
 });
 
-// Submit continuous feedback
-app.post("/api/feedbacks", async (req, res) => {
+// Submit career application (applications.php)
+app.post("/api/applications.php", async (req, res) => {
+  try {
+    const { name, email, phone, role, experience, statement } = req.body;
+    if (!name || !email || !statement || !role) {
+      return res.status(400).json({ error: "Validation Error: Name, Email, Role, and Statement of Values are required fields." });
+    }
+
+    const result = await executeQuery<any>(
+      "INSERT INTO applications (name, email, phone, role, experience, statement) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, email, phone || null, role, experience || null, statement]
+    );
+
+    res.status(201).json({
+      success: true,
+      id: result.insertId,
+      message: "Career expression of interest recorded successfully"
+    });
+  } catch (err: any) {
+    console.error("POST /api/applications.php error:", err);
+    res.status(500).json({ error: "Hostinger MySQL Database Error: Career expression of interest could not be recorded. " + err.message });
+  }
+});
+
+// Submit continuous feedback (feedbacks.php)
+app.post("/api/feedbacks.php", async (req, res) => {
   try {
     const { name, relationship, rating, message } = req.body;
     if (!name || !message) {
-      return res.status(400).json({ error: "Name and feedback narrative are required fields." });
+      return res.status(400).json({ error: "Validation Error: Name and feedback narrative are required fields." });
     }
 
     const result = await executeQuery<any>(
@@ -278,32 +244,8 @@ app.post("/api/feedbacks", async (req, res) => {
       message: "Feedback submitted successfully"
     });
   } catch (err: any) {
-    console.error("POST /api/feedbacks error:", err);
+    console.error("POST /api/feedbacks.php error:", err);
     res.status(500).json({ error: "Hostinger MySQL Database Error: Feedback could not be received. " + err.message });
-  }
-});
-
-// Submit a new career application (Expression of Interest)
-app.post("/api/applications", async (req, res) => {
-  try {
-    const { name, email, phone, role, experience, statement } = req.body;
-    if (!name || !email || !statement || !role) {
-      return res.status(400).json({ error: "Name, Email, Role, and Statement of Values are required fields." });
-    }
-
-    const result = await executeQuery<any>(
-      "INSERT INTO applications (name, email, phone, role, experience, statement) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, email, phone || null, role, experience || null, statement]
-    );
-
-    res.status(201).json({
-      success: true,
-      id: result.insertId,
-      message: "Expression of interest recorded successfully"
-    });
-  } catch (err: any) {
-    console.error("POST /api/applications error:", err);
-    res.status(500).json({ error: "Hostinger MySQL Database Error: Career expression of interest could not be recorded. " + err.message });
   }
 });
 

@@ -63,7 +63,7 @@ export default function Contact({ onNavigate }: ContactProps) {
     setNotification(null);
     
     try {
-      const res = await fetch("/api/referrals", {
+      const res = await fetch("/api/local_authority_referrals.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(referralForm)
@@ -71,7 +71,7 @@ export default function Contact({ onNavigate }: ContactProps) {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Failed to submit referral to central MySQL.");
+        throw new Error(errData.error || "Failed to submit referral to Hostinger PHP MySQL API.");
       }
       
       setIsSubmitting(false);
@@ -79,6 +79,20 @@ export default function Contact({ onNavigate }: ContactProps) {
       setNotification({
         type: "success",
         text: "Referral Received"
+      });
+      // Reset form after successful submission
+      setReferralForm({
+        commissionerName: "",
+        authority: "",
+        email: "",
+        phone: "",
+        serviceUserName: "",
+        dob: "",
+        diagnosis: "Learning Disabilities & Autism Mix",
+        requiredRatios: "1:1 Support Day & night",
+        fundingStatus: "Secured",
+        authorityType: "CCG (NHS Commissioning)",
+        riskDetails: ""
       });
     } catch (err: any) {
       console.error("MySQL referral save failed:", err);
@@ -102,7 +116,7 @@ export default function Contact({ onNavigate }: ContactProps) {
     setNotification(null);
 
     try {
-      const res = await fetch("/api/family_messages", {
+      const res = await fetch("/api/general_family_inquiries.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(generalForm)
@@ -118,6 +132,14 @@ export default function Contact({ onNavigate }: ContactProps) {
       setNotification({
         type: "success",
         text: "Family Message Received"
+      });
+      // Reset form after successful submission
+      setGeneralForm({
+        name: "",
+        email: "",
+        phone: "",
+        relation: "Family Member / Guardian",
+        message: ""
       });
     } catch (err: any) {
       console.error("MySQL insert failed:", err);
